@@ -246,7 +246,7 @@ model.fit(X_train, y_train)
 
 y_test
 
-y_pred = model.predict(X_test_scaled)
+y_pred = model.predict(X_test)
 y_pred
 
 # Model evaluation
