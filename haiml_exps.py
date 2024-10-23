@@ -29,6 +29,12 @@ print(data.isnull().sum())
 # Drop duplicates if any
 data_cleaned = data.drop_duplicates()
 
+columns_to_replace = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age']
+data_cleaned[columns_to_replace] = data_cleaned[columns_to_replace].replace(0, np.nan)
+
+data_cleaned.fillna(data_cleaned.mean(), inplace=True)
+print(data_cleaned.head())
+
 # Identify columns that may need transformation (e.g., scaling or encoding categorical data)
 print("\nColumns in Dataset:")
 print(data_cleaned.columns)
@@ -41,28 +47,42 @@ print(data_cleaned.head())
 print("\nStatistical Summary:")
 print(data_cleaned.describe())
 
-from sklearn.preprocessing import StandardScaler
-numeric_cols = data_cleaned.select_dtypes(include=[np.number]).columns
+#3. Integrate
+new_file_path = 'pima-indians-diabetes.csv'
+new_data2 = pd.read_csv(new_file_path)
+
+print(new_data2.info())
+
+print("null values")
+print(new_data2.isnull().sum())
+
+new_data2 = new_data2.drop_duplicates()
+
+columns_to_replace = new_data2.columns[:-1]
+new_data2[columns_to_replace] = new_data2[columns_to_replace].replace(0, np.nan)
+
+new_data2.fillna(new_data2.mean(), inplace=True)
+
+print("\n sample data")
+print(new_data2.head())
+
+print("\n description")
+print(new_data2.describe())
+
+combined_data = pd.concat([data_cleaned, new_data2], ignore_index=True)
+
+print(combined_data.info())
+print(combined_data.head())
+
+#4. Transform
+numeric_cols = combined_data.select_dtypes(include=[np.number]).columns
 scaler = StandardScaler()
-data_cleaned[numeric_cols] = scaler.fit_transform(data_cleaned[numeric_cols])
-# Show transformed data (first few rows)
-print("\nTransformed Dataset:")
-print(data_cleaned.head())
 
-for col in numeric_cols:
-    Q1 = data_cleaned[col].quantile(0.25)
-    Q3 = data_cleaned[col].quantile(0.75)
-    IQR = Q3 - Q1
-    # Define outliers as data points outside 1.5 * IQR range
-    filter = ~((data_cleaned[col] < (Q1 - 1.5 * IQR)) | (data_cleaned[col] > (Q3 + 1.5 * IQR)))
-    # Keep only the data points that are not outliers
-    data_cleaned = data_cleaned[filter]
+combined_data[numeric_cols] = scaler.fit_transform(combined_data[numeric_cols])
+print(combined_data.head())
 
-data_cleaned
-
-# Save the cleaned and transformed dataset to a new CSV
-cleaned_file_path = 'diabetes_cleaned.csv'
-data_cleaned.to_csv(cleaned_file_path, index=False)
+cleaned_file_path = 'combined_data.csv'
+combined_data.to_csv(cleaned_file_path, index=False)
 
 # Set the aesthetics for seaborn
 sns.set(style="whitegrid")
