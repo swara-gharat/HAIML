@@ -288,6 +288,11 @@ plt.ylabel('Actual')
 plt.title('Confusion Matrix')
 plt.show()
 
+user_input = [3, 120, 70, 20, 85, 30.5, 0.627, 40] 
+user_input_reshaped = np.array(user_input).reshape(1, -1)
+prediction = model.predict(user_input_reshaped)
+print(f"Prediction for User Input: {prediction}")
+
 """EXP 5"""
 
 # Install necessary libraries
